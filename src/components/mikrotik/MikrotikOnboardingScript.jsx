@@ -7,11 +7,12 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Download, Terminal, AlertCircle } from 'lucide-react';
+import { Copy, Download, Terminal, AlertCircle, Settings2, ShieldCheck, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { vibelink } from '@/api/vibelinkClient';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
@@ -30,6 +31,7 @@ export default function MikrotikOnboardingScript({ open, onOpenChange, router })
 
   const [generatedScript, setGeneratedScript] = useState('');
   const [step, setStep] = useState(1); // 1: Config, 2: Script
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [saveStatus, setSaveStatus] = useState('idle'); // idle, success, error
   const queryClient = useQueryClient();
   
@@ -41,7 +43,23 @@ export default function MikrotikOnboardingScript({ open, onOpenChange, router })
   const serverConfig = vpnConfigs.find(c => c.type === 'server');
 
   useEffect(() => {
-    if (router) {
+    if (open && !router) {
+      // Auto-generate values for new registrations
+      const randomId = Math.random().toString(36).slice(-4).toUpperCase();
+      setFormData({
+        router_name: `Router-${randomId}`,
+        ip_address: '',
+        api_username: `vibelink-mgmt-${randomId.toLowerCase()}`,
+        api_password: Math.random().toString(36).slice(-12),
+        bandwidth_limit: '1000',
+        vpn_enabled: true,
+        vpn_protocol: 'wireguard',
+        assigned_inner_ip: '10.8.0.' + (Math.floor(Math.random() * 253) + 2)
+      });
+      setStep(1);
+      setShowAdvanced(false);
+      setSaveStatus('idle');
+    } else if (router) {
       setFormData({
         router_name: router.router_name || '',
         ip_address: router.ip_address || '',
@@ -120,8 +138,8 @@ ${data.vpn_enabled && data.vpn_protocol === 'wireguard' && serverConfig ? `
   });
 
   const handleGenerate = () => {
-    if (!formData.router_name || !formData.ip_address) {
-      toast.error('Router Name and IP Address are required');
+    if (!formData.router_name) {
+      toast.error('Router Identity Name is mandatory');
       return;
     }
 
@@ -165,84 +183,134 @@ ${data.vpn_enabled && data.vpn_protocol === 'wireguard' && serverConfig ? `
 
         {step === 1 ? (
           <div className="space-y-6 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="">Router Name *</Label>
-                <Input
-                  value={formData.router_name}
-                  onChange={(e) => setFormData({ ...formData, router_name: e.target.value })}
-                  placeholder="Main Branch"
-                />
+            <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30 rounded-xl p-5 flex items-start gap-4">
+              <div className="bg-white dark:bg-slate-800 p-2.5 rounded-lg shadow-sm border border-indigo-100 dark:border-indigo-900/50 text-indigo-600 dark:text-indigo-400">
+                <ShieldCheck className="w-6 h-6" />
               </div>
-              <div className="space-y-2">
-                <Label className="">Expected IP Address *</Label>
-                <Input
-                  value={formData.ip_address}
-                  onChange={(e) => setFormData({ ...formData, ip_address: e.target.value })}
-                  placeholder="192.168.1.1"
-                />
+              <div className="space-y-1">
+                <h4 className="font-semibold text-slate-900 dark:text-slate-100 italic">Zero-Touch Onboarding</h4>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Enter only the router's current local IP address if known. Vibelink's WireGuard hub supports traversal even from behind a NAT or from routers without a public IP.
+                </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="">API Username</Label>
-                <Input
-                  value={formData.api_username}
-                  onChange={(e) => setFormData({ ...formData, api_username: e.target.value })}
-                />
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
+                    Router Identity Name *
+                  </Label>
+                  <Input
+                    className="h-12 bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-indigo-500 transition-all font-bold"
+                    value={formData.router_name}
+                    onChange={(e) => setFormData({ ...formData, router_name: e.target.value })}
+                    placeholder="e.g. Branch-Nairobi-01"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
+                    WAN / Local IP (Optional)
+                  </Label>
+                  <Input
+                    className="h-12 text-lg font-mono tracking-tight bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-indigo-500 transition-all"
+                    value={formData.ip_address}
+                    onChange={(e) => setFormData({ ...formData, ip_address: e.target.value })}
+                    placeholder="e.g. 192.168.1.1"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="">API Password (Auto-generated)</Label>
-                <Input
-                  type="password"
-                  value={formData.api_password}
-                  onChange={(e) => setFormData({ ...formData, api_password: e.target.value })}
-                />
-              </div>
-            </div>
+              <p className="text-xs text-slate-500 italic">WireGuard hub enables secure connection even from behind a NAT - a public IP for the router is NOT required.</p>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Bandwidth Limit (Mbps)</Label>
-                <Input
-                  type="number"
-                  value={formData.bandwidth_limit}
-                  onChange={(e) => setFormData({ ...formData, bandwidth_limit: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>VPN Protocol</Label>
-                <Select
-                  value={formData.vpn_protocol}
-                  onValueChange={(v) => setFormData({ ...formData, vpn_protocol: v })}
+              <div className="border-t border-slate-100 dark:border-slate-800 pt-4">
+                <button 
+                  onClick={() => setShowAdvanced(!showAdvanced)}
+                  className="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors"
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="wireguard">WireGuard</SelectItem>
-                    <SelectItem value="pptp">PPTP</SelectItem>
-                    <SelectItem value="l2tp">L2TP</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <Settings2 className="w-4 h-4" />
+                  {showAdvanced ? 'Hide Advanced Settings' : 'Show Advanced Settings'}
+                  {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+
+                {showAdvanced && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }} 
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="space-y-6 py-4 overflow-hidden"
+                  >
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-xs uppercase tracking-wider text-slate-500">Bandwidth (Mbps)</Label>
+                        <Input
+                          type="number"
+                          value={formData.bandwidth_limit}
+                          onChange={(e) => setFormData({ ...formData, bandwidth_limit: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs uppercase tracking-wider text-slate-500">VPN Management IP</Label>
+                        <Input
+                          value={formData.assigned_inner_ip}
+                          onChange={(e) => setFormData({ ...formData, assigned_inner_ip: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-xs uppercase tracking-wider text-slate-500">API Username</Label>
+                        <Input
+                          value={formData.api_username}
+                          onChange={(e) => setFormData({ ...formData, api_username: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs uppercase tracking-wider text-slate-500">API Password</Label>
+                        <Input
+                          type="password"
+                          value={formData.api_password}
+                          onChange={(e) => setFormData({ ...formData, api_password: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-xs uppercase tracking-wider text-slate-500">VPN Protocol</Label>
+                        <Select
+                          value={formData.vpn_protocol}
+                          onValueChange={(v) => setFormData({ ...formData, vpn_protocol: v })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="wireguard">WireGuard (Recommended)</SelectItem>
+                            <SelectItem value="pptp">PPTP (Legacy)</SelectItem>
+                            <SelectItem value="l2tp">L2TP/IPSec</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs uppercase tracking-wider text-slate-500">VPN Management IP</Label>
+                        <Input
+                          value={formData.assigned_inner_ip}
+                          onChange={(e) => setFormData({ ...formData, assigned_inner_ip: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Assigned Management IP (VPN Inner IP)</Label>
-              <Input
-                value={formData.assigned_inner_ip}
-                onChange={(e) => setFormData({ ...formData, assigned_inner_ip: e.target.value })}
-                placeholder="10.8.0.5"
-              />
-              <p className="text-xs text-slate-500 italic">This IP will be used to manage the router via the VPN tunnel.</p>
-            </div>
-
-            <DialogFooter className="">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button onClick={handleGenerate} disabled={createMutation.isPending}>
-                {createMutation.isPending ? 'Processing...' : 'Generate Script'}
+            <DialogFooter className="border-t border-slate-100 dark:border-slate-800 pt-6">
+              <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+              <Button 
+                onClick={handleGenerate} 
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 h-12 rounded-xl shadow-lg shadow-indigo-600/20"
+              >
+                {createMutation.isPending ? 'Provisioning...' : 'Generate Onboarding Script'}
               </Button>
             </DialogFooter>
           </div>
