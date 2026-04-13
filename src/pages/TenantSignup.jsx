@@ -55,7 +55,7 @@ export default function TenantSignup() {
   const createTenantMutation = useMutation({
     mutationFn: async (data) => {
       const trialEndsAt = new Date();
-      trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+      trialEndsAt.setMonth(trialEndsAt.getMonth() + 1);
 
       const tenant = await vibelink.entities.Tenant.create({
         ...data,
@@ -175,7 +175,7 @@ export default function TenantSignup() {
                             ))}
                           </ul>
                           <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400">
-                            <strong>14-day free trial</strong> • No credit card required
+                            <strong>One month free trial</strong> • No credit card required
                           </div>
                         </motion.div>
                       ))}
@@ -255,7 +255,7 @@ export default function TenantSignup() {
                         <p className="text-2xl font-bold text-indigo-600">
                           KES {selectedPlan.price.toLocaleString()}/month
                         </p>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">14-day free trial included</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">One month free trial included</p>
                       </div>
                       <div className="space-y-2">
                         <Label>Admin Name *</Label>
@@ -322,7 +322,7 @@ export default function TenantSignup() {
               </p>
               <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200 mb-6">
                 <p className="text-sm text-slate-700 dark:text-slate-300">
-                  Your 14-day free trial starts now. You can access your dashboard at:<br />
+                  Your one month free trial starts now. You can access your dashboard at:<br />
                   <strong className="text-indigo-600">{formData.subdomain}.skybridge.co.ke</strong>
                 </p>
               </div>
