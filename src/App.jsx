@@ -61,7 +61,7 @@ const AuthenticatedApp = () => {
       {Pages.TenantSignup && <Route path="/TenantSignup" element={<Pages.TenantSignup />} />}
       {Pages.SetPassword && <Route path="/SetPassword" element={<Pages.SetPassword />} />}
       {Object.entries(Pages).map(([path, Page]) => {
-        if (['Login', 'TenantSignup', 'SetPassword'].includes(path)) return null;
+        if (['Login', 'TenantSignup', 'TenantOnboarding', 'SetPassword'].includes(path)) return null;
         return (
           <Route
             key={path}
