@@ -39,7 +39,10 @@ export default function TenantSignup() {
     },
     onSuccess: () => {
       setStep(3);
-      toast.success('Account created successfully!');
+      toast.success('Account created successfully! Redirecting to your dashboard...');
+      setTimeout(() => {
+        window.location.href = `https://${formData.subdomain}.skybridge.co.ke/login`;
+      }, 3000);
     },
     onError: (error) => {
       toast.error('Failed to create account: ' + error.message);
@@ -243,7 +246,7 @@ export default function TenantSignup() {
                   <strong className="text-indigo-600">{formData.subdomain}.skybridge.co.ke</strong>
                 </p>
               </div>
-              <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => vibelink.auth.redirectToLogin()}>
+              <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => window.location.href = `https://${formData.subdomain}.skybridge.co.ke/login`}>
                 Go to Login
               </Button>
             </CardContent>
