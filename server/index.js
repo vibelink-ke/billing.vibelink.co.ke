@@ -58,11 +58,15 @@ app.post('/api/auth/login', async (req, res) => {
         });
       }
     } else {
-       // Optional: Add password verification for non-super admins later, but currently we auto-create
        if (!user) {
-         user = await prisma.user.create({
-           data: { name: 'Admin', username: userUsername, email: userEmail, role: 'admin' }
-         });
+         return res.status(401).json({ message: 'Invalid credentials' });
+       }
+       if (!user.password) {
+         return res.status(401).json({ message: 'Account has no password set. Please reset your password.' });
+       }
+       const isMatch = await bcrypt.compare(password, user.password);
+       if (!isMatch) {
+         return res.status(401).json({ message: 'Invalid credentials' });
        }
     }
 
@@ -99,6 +103,48 @@ app.put('/api/auth/me', async (req, res) => {
   } catch (err) {
     res.status(401).json({ message: 'Invalid token or unauthorized' });
   }
+});
+
+app.post('/api/auth/register-tenant', async (req, res) => {
+  try {
+    const { company_name, admin_name, admin_email, phone, address, city, country, password } = req.body;
+    
+    // 1. Create Tenant
+    const trialEndsAt = new Date();
+    trialEndsAt.setMonth(trialEndsAt.getMonth() + 1);
+    
+    const tenant = await prisma.tenant.create({
+      data: {
+        company_name, admin_name, admin_email, phone, address, city, country,
+        status: 'trial',
+        trial_ends_at: trialEndsAt.toISOString(),
+        hotspot_revenue_share: 3,
+        pppoe_rate: 20
+      }
+    });
+
+    // 2. Create User
+    if (password && admin_email) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const userUsername = admin_email.split('@')[0];
+      
+      // Check if user already exists
+      const existingUser = await prisma.user.findUnique({ where: { email: admin_email.toLowerCase() } });
+      if (!existingUser) {
+        await prisma.user.create({
+          data: {
+            name: admin_name || 'Admin',
+            username: userUsername,
+            email: admin_email.toLowerCase(),
+            password: hashedPassword,
+            role: 'admin'
+          }
+        });
+      }
+    }
+
+    res.json(tenant);
+  } catch (err) { handleErr(res, err); }
 });
 
 

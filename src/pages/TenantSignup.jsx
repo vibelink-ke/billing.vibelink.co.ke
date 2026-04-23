@@ -19,23 +19,12 @@ export default function TenantSignup() {
     address: '',
     city: '',
     country: '',
-
+    password: '',
   });
 
   const createTenantMutation = useMutation({
     mutationFn: async (data) => {
-      const trialEndsAt = new Date();
-      trialEndsAt.setMonth(trialEndsAt.getMonth() + 1);
-
-      const tenant = await vibelink.entities.Tenant.create({
-        ...data,
-        status: 'trial',
-        trial_ends_at: trialEndsAt.toISOString(),
-        hotspot_revenue_share: 3,
-        pppoe_rate: 20
-      });
-
-      return tenant;
+      return await vibelink.auth.registerTenant(data);
     },
     onSuccess: () => {
       setStep(3);
@@ -184,6 +173,16 @@ export default function TenantSignup() {
                           required
                         />
                         <p className="text-xs text-slate-500">This will be your login email</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Password *</Label>
+                        <Input
+                          type="password"
+                          value={formData.password}
+                          onChange={(e) => setFormData({...formData, password: e.target.value})}
+                          placeholder="Create a strong password"
+                          required
+                        />
                       </div>
                     </div>
                   )}
