@@ -10,6 +10,7 @@ generator client {
 model User {
   id                   String   @id @default(uuid())
   name                 String
+  username             String?  @unique
   email                String   @unique
   role                 String   @default("admin")
   onboarding_completed Boolean  @default(false)

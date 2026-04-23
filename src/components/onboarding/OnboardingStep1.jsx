@@ -17,8 +17,7 @@ export default function OnboardingStep1({ data, onNext }) {
   const handleSubmit = () => {
     const newErrors = {};
     if (!formData.company_name?.trim()) newErrors.company_name = 'Company name is required';
-    if (!formData.subdomain?.trim()) newErrors.subdomain = 'Subdomain is required';
-    if (!validateSubdomain(formData.subdomain)) newErrors.subdomain = 'Subdomain must be 3-32 characters, lowercase letters, numbers, and hyphens only';
+
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -60,28 +59,7 @@ export default function OnboardingStep1({ data, onNext }) {
             {errors.company_name && <p className="text-red-500 text-sm mt-1">{errors.company_name}</p>}
           </div>
 
-          <div>
-            <Label htmlFor="subdomain" className="flex items-center gap-2">
-              <Globe className="w-4 h-4" />
-              Subdomain *
-            </Label>
-            <div className="flex items-center mt-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-input px-3">
-              <span className="text-slate-500 text-sm">https://</span>
-              <Input
-                id="subdomain"
-                value={formData.subdomain || ''}
-                onChange={(e) => {
-                  const value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
-                  setFormData({ ...formData, subdomain: value });
-                  if (errors.subdomain) setErrors({ ...errors, subdomain: '' });
-                }}
-                placeholder="your-company"
-                className="border-0 bg-transparent focus-visible:ring-0"
-              />
-              <span className="text-slate-500 text-sm">.vibelink.com</span>
-            </div>
-            {errors.subdomain && <p className="text-red-500 text-sm mt-1">{errors.subdomain}</p>}
-          </div>
+
 
           <div className="grid grid-cols-2 gap-4">
             <div>

@@ -9,7 +9,7 @@ import { Mail, Lock, Zap, ArrowRight, ArrowLeft, Loader2, PhoneCall } from 'luci
 import { useToast } from '@/components/ui/use-toast';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
@@ -19,7 +19,7 @@ export default function Login() {
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    if (!email) {
+    if (!identifier) {
       toast({ title: "Email Required", description: "Please enter your email to reset your password.", variant: "destructive" });
       return;
     }
@@ -42,7 +42,7 @@ export default function Login() {
     }
     setIsLoading(true);
     try {
-      await login(email, password);
+      await login(identifier, password);
       toast({
         title: "Welcome to VIBELINK",
         description: "Authenticated successfully.",
@@ -101,17 +101,17 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-300 ml-1">Email Address</Label>
+              <Label htmlFor="identifier" className="text-slate-300 ml-1">Email or Username</Label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
                   <Mail className="h-4 w-4" />
                 </div>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="info@skybridge.co.ke"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="identifier"
+                  type="text"
+                  placeholder="info@billing.vibelink.co.ke or adminuser"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   className="pl-10 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-600 focus:border-indigo-500 focus:ring-indigo-500/20 rounded-xl py-6 transition-all"
                   required
                 />
@@ -215,11 +215,11 @@ export default function Login() {
               <p className="text-slate-400 mb-2 text-xs font-medium">Need help accessing your account?</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
                 <a 
-                  href="mailto:support@skybridge.co.ke" 
+                  href="mailto:support@billing.vibelink.co.ke" 
                   className="flex items-center text-slate-300 hover:text-indigo-400 transition-colors px-3 py-2 rounded-lg hover:bg-slate-800/50"
                 >
                   <Mail className="w-4 h-4 mr-2" />
-                  support@skybridge.co.ke
+                  support@billing.vibelink.co.ke
                 </a>
                 <a 
                   href="tel:+254700000000" 

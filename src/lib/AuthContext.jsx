@@ -48,8 +48,8 @@ export const AuthProvider = ({ children }) => {
     setIsLoadingPublicSettings(false);
   };
 
-  const login = async (email, password) => {
-    const user = await vibelink.auth.login(email, password);
+  const login = async (identifier, password) => {
+    const user = await vibelink.auth.login(identifier, password);
     setUser(user);
     setIsAuthenticated(true);
     return user;

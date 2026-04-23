@@ -25,7 +25,7 @@ export default function TenantForm({ tenant, onSubmit, isLoading }) {
   const [formData, setFormData] = useState(
     tenant || {
       company_name: '',
-      subdomain: '',
+
       admin_name: '',
       admin_email: '',
       phone: '',
@@ -101,27 +101,7 @@ export default function TenantForm({ tenant, onSubmit, isLoading }) {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="subdomain">Subdomain *</Label>
-              <div className="flex">
-                <Input
-                  id="subdomain"
-                  value={formData.subdomain}
-                  onChange={(e) => {
-                    const value = e.target.value
-                      .toLowerCase()
-                      .replace(/[^a-z0-9]/g, '');
-                    handleChange('subdomain', value);
-                  }}
-                  placeholder="company-name"
-                  required
-                  className="rounded-r-none"
-                />
-                <div className="flex items-center px-3 bg-slate-100 dark:bg-slate-800 border border-l-0 border-input rounded-r-md text-slate-600 dark:text-slate-400 text-sm font-mono">
-                  .skybridge.co.ke
-                </div>
-              </div>
-            </div>
+
           </div>
 
           <div className="grid grid-cols-2 gap-4">

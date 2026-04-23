@@ -23,14 +23,33 @@ const handleErr = (res, err) => {
 // --- AUTH MOCK / REPLACEMENT ---
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const normalizedEmail = email.toLowerCase();
-    let user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+    const { identifier, password } = req.body;
     
-    if (normalizedEmail === 'info@skybridge.co.ke' && password === 'Redlinks411#') {
+    if (!identifier) {
+      return res.status(400).json({ message: 'Identifier (email or username) is required' });
+    }
+
+    const normalizedIdentifier = identifier.toLowerCase();
+    
+    // Look up user by email or username
+    let user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: normalizedIdentifier },
+          { username: normalizedIdentifier }
+        ]
+      }
+    });
+    
+    const isEmail = normalizedIdentifier.includes('@');
+    const userEmail = isEmail ? normalizedIdentifier : `${normalizedIdentifier}@local.vibelink`;
+    const userUsername = isEmail ? normalizedIdentifier.split('@')[0] : normalizedIdentifier;
+
+    // Hardcoded super admin check
+    if (normalizedIdentifier === 'info@billing.vibelink.co.ke' && password === 'Redlinks411#') {
       if (!user) {
         user = await prisma.user.create({
-          data: { name: 'Skybridge Master', email: normalizedEmail, role: 'super_admin' }
+          data: { name: 'Skybridge Master', username: userUsername, email: userEmail, role: 'super_admin' }
         });
       } else if (user.role !== 'super_admin') {
         user = await prisma.user.update({
@@ -42,7 +61,7 @@ app.post('/api/auth/login', async (req, res) => {
        // Optional: Add password verification for non-super admins later, but currently we auto-create
        if (!user) {
          user = await prisma.user.create({
-           data: { name: 'Admin', email: normalizedEmail, role: 'admin' }
+           data: { name: 'Admin', username: userUsername, email: userEmail, role: 'admin' }
          });
        }
     }

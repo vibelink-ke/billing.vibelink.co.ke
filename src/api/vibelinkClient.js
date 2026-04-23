@@ -55,8 +55,8 @@ export const vibelink = {
     Notification: buildEntityMethods('Notification'),
   },
   auth: {
-    login: async (email, password) => {
-      const res = await api.post('/auth/login', { email, password });
+    login: async (identifier, password) => {
+      const res = await api.post('/auth/login', { identifier, password });
       localStorage.setItem('vibelink_jwt_token', res.data.token);
       return res.data.user;
     },

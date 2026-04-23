@@ -23,7 +23,7 @@ export default function TenantOnboarding() {
   const [tenant, setTenant] = useState(null);
   const [formData, setFormData] = useState({
     company_name: '',
-    subdomain: '',
+
     city: '',
     country: '',
     admin_name: '',
@@ -42,7 +42,7 @@ export default function TenantOnboarding() {
       setTenant(t);
       setFormData({
         company_name: t.company_name || '',
-        subdomain: t.subdomain || '',
+
         city: t.city || '',
         country: t.country || '',
         admin_name: t.admin_name || '',
@@ -134,7 +134,7 @@ export default function TenantOnboarding() {
 
         {/* Footer */}
         <div className="text-center mt-12 text-sm text-slate-600 dark:text-slate-400">
-          <p>Questions? Email us at <a href="mailto:support@vibelink.com" className="text-indigo-600 hover:underline">support@vibelink.com</a></p>
+          <p>Questions? Email us at <a href="mailto:support@billing.vibelink.co.ke" className="text-indigo-600 hover:underline">support@billing.vibelink.co.ke</a></p>
         </div>
       </div>
     </div>

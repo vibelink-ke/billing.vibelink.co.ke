@@ -17,7 +17,7 @@ export default function OnboardingStep3({ data, tenantId, onBack, onComplete }) 
       // Update tenant with all details
       await vibelink.entities.Tenant.update(tenantId, {
         company_name: data.company_name,
-        subdomain: data.subdomain,
+
         admin_name: data.admin_name,
         admin_email: data.admin_email,
         phone: data.phone,
@@ -57,10 +57,7 @@ export default function OnboardingStep3({ data, tenantId, onBack, onComplete }) 
               <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">{data.company_name}</p>
             </div>
 
-            <div className="border-l-4 border-indigo-500 pl-4">
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Subdomain</p>
-              <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">https://{data.subdomain}.vibelink.com</p>
-            </div>
+
 
             <div className="grid grid-cols-2 gap-4">
               <div className="border-l-4 border-indigo-500 pl-4">

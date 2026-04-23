@@ -19,7 +19,7 @@ export default function TenantSignup() {
     address: '',
     city: '',
     country: '',
-    subdomain: '',
+
   });
 
   const createTenantMutation = useMutation({
@@ -41,7 +41,7 @@ export default function TenantSignup() {
       setStep(3);
       toast.success('Account created successfully! Redirecting to your dashboard...');
       setTimeout(() => {
-        window.location.href = `https://${formData.subdomain}.skybridge.co.ke/login`;
+        window.location.href = '/login';
       }, 3000);
     },
     onError: (error) => {
@@ -121,19 +121,7 @@ export default function TenantSignup() {
                           required
                         />
                       </div>
-                      <div className="space-y-2">
-                        <Label>Subdomain *</Label>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            value={formData.subdomain}
-                            onChange={(e) => setFormData({...formData, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')})}
-                            placeholder="yourisp"
-                            required
-                          />
-                          <span className="text-slate-500">.skybridge.co.ke</span>
-                        </div>
-                        <p className="text-xs text-slate-500">Your unique URL for accessing the platform</p>
-                      </div>
+
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>Phone *</Label>
@@ -242,11 +230,12 @@ export default function TenantSignup() {
               </p>
               <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200 mb-6">
                 <p className="text-sm text-slate-700 dark:text-slate-300">
-                  Your one month free trial starts now. You can access your dashboard at:<br />
-                  <strong className="text-indigo-600">{formData.subdomain}.skybridge.co.ke</strong>
+                  <strong className="text-indigo-600">billing.vibelink.co.ke/login</strong>
                 </p>
               </div>
-              <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => window.location.href = `https://${formData.subdomain}.skybridge.co.ke/login`}>
+              <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => {
+                window.location.href = '/login';
+              }}>
                 Go to Login
               </Button>
             </CardContent>

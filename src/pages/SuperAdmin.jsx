@@ -65,8 +65,7 @@ export default function SuperAdmin() {
 
   const filteredTenants = tenants.filter(t =>
     t.company_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.admin_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.subdomain?.toLowerCase().includes(searchQuery.toLowerCase())
+    t.admin_email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const stats = {
@@ -190,8 +189,6 @@ export default function SuperAdmin() {
                       </div>
                       <p className="text-sm text-slate-600 dark:text-slate-400">{tenant.admin_email}</p>
                       <div className="flex items-center gap-4 mt-1 text-xs text-slate-500">
-                        <span>{tenant.subdomain}.skybridge.co.ke</span>
-                        <span>•</span>
                         <span>Hotspot: {tenant.hotspot_revenue_share || 0}%</span>
                         <span>•</span>
                         <span>PPPoE: KES {tenant.pppoe_rate?.toLocaleString() || '0'}</span>
@@ -280,10 +277,7 @@ export default function SuperAdmin() {
                     <p className="text-sm text-slate-500">Admin Name</p>
                     <p className="font-medium">{selectedTenant.admin_name}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-slate-500">Subdomain</p>
-                    <p className="font-medium">{selectedTenant.subdomain}.skybridge.co.ke</p>
-                  </div>
+
                   <div>
                     <p className="text-sm text-slate-500">Phone</p>
                     <p className="font-medium">{selectedTenant.phone}</p>

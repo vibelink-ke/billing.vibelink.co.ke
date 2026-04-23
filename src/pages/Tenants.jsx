@@ -59,7 +59,6 @@ export default function Tenants() {
 
   const filteredTenants = tenants.filter(tenant =>
     tenant.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    tenant.subdomain?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     tenant.admin_email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -114,7 +113,7 @@ export default function Tenants() {
           <div className="relative">
             <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
             <Input
-              placeholder="Search by company name, subdomain, or email..."
+              placeholder="Search by company name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"

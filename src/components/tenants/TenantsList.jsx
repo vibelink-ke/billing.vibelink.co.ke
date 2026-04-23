@@ -59,10 +59,7 @@ export default function TenantsList({ tenants = [], isLoading, onEdit, onDelete 
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">Subdomain</p>
-                      <p className="font-mono text-slate-900 dark:text-slate-300">{tenant.subdomain}.skybridge.co.ke</p>
-                    </div>
+
                     <div>
                       <p className="text-sm text-slate-600 dark:text-slate-400">Admin Email</p>
                       <p className="text-slate-900 dark:text-slate-300">{tenant.admin_email}</p>
