@@ -23,9 +23,17 @@ const statuses = [
 
 export default function TenantForm({ tenant, onSubmit, isLoading }) {
   const [formData, setFormData] = useState(
-    tenant || {
+    tenant ? {
+      ...tenant,
+      // Safely initialize nested payment objects that DB returns as null
+      safaricom_paybill: tenant.safaricom_paybill || {
+        enabled: false, paybill_number: '', paybill_name: '', account_number: '', api_key: '',
+      },
+      kopo_kopo: tenant.kopo_kopo || {
+        enabled: false, merchant_id: '', api_key: '', api_secret: '', short_code: '',
+      },
+    } : {
       company_name: '',
-
       admin_name: '',
       admin_email: '',
       phone: '',

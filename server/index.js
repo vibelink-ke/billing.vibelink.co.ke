@@ -237,6 +237,20 @@ generateCrudRoutes('systemLog', '/api/entities/SystemLog');
 generateCrudRoutes('role', '/api/entities/Role');
 generateCrudRoutes('notification', '/api/entities/Notification');
 
+// --- Override Tenant DELETE to cascade-delete associated users ---
+// This MUST come after generateCrudRoutes('tenant',...) to override it.
+app.delete('/api/entities/Tenant/:id', async (req, res) => {
+  try {
+    const tenantId = req.params.id;
+    // 1. Delete all users linked to this tenant (revokes their credentials)
+    await prisma.user.deleteMany({ where: { tenant_id: tenantId } });
+    // 2. Delete the tenant itself
+    await prisma.tenant.delete({ where: { id: tenantId } });
+    res.json({ success: true });
+  } catch (err) { handleErr(res, err); }
+});
+
+
 // --- Specific Vibelink Functions ---
 app.post('/api/functions/invoke', (req, res) => {
   console.log('Function invoked:', req.body);
