@@ -175,24 +175,29 @@ const verifyToken = (req) => {
 };
 
 const generateCrudRoutes = (modelName, path) => {
+  // GET: filter by tenant_id for non-super-admins
   app.get(path, async (req, res) => {
     try {
       const decoded = verifyToken(req);
       const isSuperAdmin = decoded?.role === 'super_admin';
-      const where = (!isSuperAdmin && decoded?.tenant_id)
+      // All entity models except 'tenant' now have tenant_id
+      const where = (!isSuperAdmin && decoded?.tenant_id && modelName !== 'tenant')
         ? { tenant_id: decoded.tenant_id }
         : {};
-      // Check if model has tenant_id field before filtering
-      const modelHasTenantId = ['customer','servicePlan','invoice','payment','supportTicket','ticketNote','mikrotik','hotspot','sLA','systemLog','role','notification'].includes(modelName);
-      const records = await prisma[modelName].findMany({ where: modelHasTenantId && !isSuperAdmin && decoded?.tenant_id ? where : {} });
+      const records = await prisma[modelName].findMany({ where });
       res.json(records);
     } catch (err) { handleErr(res, err); }
   });
 
+  // POST: auto-inject tenant_id from JWT token
   app.post(path, async (req, res) => {
     try {
-      // Avoid passing ID from frontend, let Prisma handle it
+      const decoded = verifyToken(req);
       const { id, ...data } = req.body;
+      // Inject tenant_id if user has one and model isn't 'tenant'
+      if (decoded?.tenant_id && modelName !== 'tenant') {
+        data.tenant_id = decoded.tenant_id;
+      }
       const record = await prisma[modelName].create({ data });
       res.json(record);
     } catch (err) { handleErr(res, err); }
