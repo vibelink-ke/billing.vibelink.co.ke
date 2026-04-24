@@ -14,6 +14,7 @@ model User {
   email                String   @unique
   password             String?
   role                 String   @default("admin")
+  tenant_id            String?
   onboarding_completed Boolean  @default(false)
   expires_at           DateTime?
   created_at           DateTime @default(now())
@@ -29,6 +30,7 @@ model Tenant {
   city                  String?
   country               String?
   subdomain             String?
+  logo_url              String?
   status                String    @default("trial")
   trial_ends_at         DateTime?
   hotspot_revenue_share Float?

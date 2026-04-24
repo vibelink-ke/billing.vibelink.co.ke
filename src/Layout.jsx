@@ -243,14 +243,23 @@ function LayoutContent({
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex flex-col h-full">
-          {/* Logo */}
+          {/* Logo / Tenant Branding */}
           <div className="flex items-center justify-between h-16 px-6 border-b border-slate-100 dark:border-slate-700" data-tour="sidebar">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
-              </div>
+              {user?.tenant?.logo_url ? (
+                <img src={user.tenant.logo_url} alt="Logo" className="w-9 h-9 rounded-xl object-cover" />
+              ) : user?.role !== 'super_admin' ? (
+                // Non-super-admin with no logo: empty slot
+                <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-700" />
+              ) : (
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-white" />
+                </div>
+              )}
               <div>
-                <h1 className="font-bold text-slate-900 dark:text-slate-50 dark:text-white">VIBELINK</h1>
+                <h1 className="font-bold text-slate-900 dark:text-slate-50 dark:text-white">
+                  {user?.tenant?.company_name || 'VIBELINK'}
+                </h1>
                 <p className="text-xs text-slate-500 dark:text-slate-400">ISP Management</p>
               </div>
             </div>
@@ -395,11 +404,11 @@ function LayoutContent({
                 <button className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                   <Avatar className="w-10 h-10">
                     <AvatarFallback className="bg-gradient-to-br from-indigo-400 to-purple-500 text-white font-semibold">
-                      {user?.full_name?.charAt(0).toUpperCase() || 'U'}
+                      {(user?.name || user?.full_name)?.charAt(0)?.toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 text-left">
-                    <p className="font-medium text-slate-900 dark:text-slate-50 dark:text-white text-sm">{user?.full_name || 'User'}</p>
+                    <p className="font-medium text-slate-900 dark:text-slate-50 dark:text-white text-sm">{user?.name || user?.full_name || 'User'}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email || ''}</p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -438,10 +447,18 @@ function LayoutContent({
             <Menu className="w-5 h-5" />
           </Button>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-              <Zap className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-slate-900 dark:text-slate-50 dark:text-white">VIBELINK</span>
+              {user?.tenant?.logo_url ? (
+                <img src={user.tenant.logo_url} alt="Logo" className="w-8 h-8 rounded-lg object-cover" />
+              ) : user?.role !== 'super_admin' ? (
+                <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700" />
+              ) : (
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-white" />
+                </div>
+              )}
+              <span className="font-bold text-slate-900 dark:text-slate-50 dark:text-white">
+                {user?.tenant?.company_name || 'VIBELINK'}
+              </span>
           </div>
           <div className="flex items-center gap-2">
             <NotificationBell user={user} />

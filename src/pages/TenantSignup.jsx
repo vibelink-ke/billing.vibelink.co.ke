@@ -69,6 +69,12 @@ export default function TenantSignup() {
                 <p className="text-xs text-slate-500">ISP Management Platform</p>
               </div>
             </div>
+            <a
+              href="/login"
+              className="text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
+            >
+              Already have an account? <span className="underline">Log in</span>
+            </a>
           </div>
         </div>
       </header>

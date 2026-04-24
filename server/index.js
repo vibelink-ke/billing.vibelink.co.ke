@@ -73,7 +73,7 @@ app.post('/api/auth/login', async (req, res) => {
        }
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET);
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role, tenant_id: user.tenant_id || null }, JWT_SECRET);
     res.json({ user, token });
   } catch (err) { handleErr(res, err); }
 });
@@ -86,7 +86,12 @@ app.get('/api/auth/me', async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const user = await prisma.user.findUnique({ where: { id: decoded.id } });
     if (!user) return res.status(401).json({ message: 'User not found' });
-    res.json(user);
+    // Attach tenant data
+    let tenant = null;
+    if (user.tenant_id) {
+      tenant = await prisma.tenant.findUnique({ where: { id: user.tenant_id } });
+    }
+    res.json({ ...user, tenant });
   } catch (err) {
     res.status(401).json({ message: 'Invalid token or unauthorized' });
   }
@@ -145,6 +150,7 @@ app.post('/api/auth/register-tenant', async (req, res) => {
             email: admin_email.toLowerCase(),
             password: hashedPassword,
             role: 'admin',
+            tenant_id: tenant.id,
             expires_at: is_demo ? trialEndsAt.toISOString() : null
           }
         });
@@ -157,10 +163,28 @@ app.post('/api/auth/register-tenant', async (req, res) => {
 
 
 // --- GENERIC REST ROUTE FACTORY ---
+// Reads tenant_id from JWT so each tenant only sees their own data.
+// super_admin bypasses all tenant filtering.
+const verifyToken = (req) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return null;
+    const token = authHeader.split(' ')[1];
+    return jwt.verify(token, JWT_SECRET);
+  } catch { return null; }
+};
+
 const generateCrudRoutes = (modelName, path) => {
   app.get(path, async (req, res) => {
     try {
-      const records = await prisma[modelName].findMany();
+      const decoded = verifyToken(req);
+      const isSuperAdmin = decoded?.role === 'super_admin';
+      const where = (!isSuperAdmin && decoded?.tenant_id)
+        ? { tenant_id: decoded.tenant_id }
+        : {};
+      // Check if model has tenant_id field before filtering
+      const modelHasTenantId = ['customer','servicePlan','invoice','payment','supportTicket','ticketNote','mikrotik','hotspot','sLA','systemLog','role','notification'].includes(modelName);
+      const records = await prisma[modelName].findMany({ where: modelHasTenantId && !isSuperAdmin && decoded?.tenant_id ? where : {} });
       res.json(records);
     } catch (err) { handleErr(res, err); }
   });
